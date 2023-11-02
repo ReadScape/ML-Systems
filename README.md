@@ -28,3 +28,5 @@ Next progress:
 * Try implementing a Neural Network into the system
 
 ![image](https://github.com/ReadScape/ML-Thingy/assets/141800409/a2a3b058-3c77-4aaf-a247-2ece1dbebd99)
+
+[Latest Plagiarism Checker System link](https://colab.research.google.com/drive/1ppuMaEjXKjWd24T_JPt4IWbjVE5O_Uum?usp=sharing) 
