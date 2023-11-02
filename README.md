@@ -20,7 +20,7 @@ This system uses several library, such as: tensorflow, os, sklearn, nltk, re, nu
 And also uses available functions, such as: TfidfVectorizer, cosine_similarity, word_tokenize, sent_tokenize, Tokenizer and pad_sequences.
 
 Current progress:
-* System can show how much line are copy-pasted or has high similarity (threshold = 0.9999, 0.7, 0.3)
+* System can show how much line are copy-pasted or has high similarity (threshold = 0.99, 0.7, 0.3)
 * System has been designed to show which text are plagiarized and which text are save to be uploaded by Author
 
 Next progress:
