@@ -1,4 +1,3 @@
-#import library
 import string
 import re
 import pandas as pd
@@ -12,7 +11,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import warnings
 warnings.filterwarnings('ignore')
 
-#Preprocessing rating data
 def preprocess_rating(rating):
     rating['user_id'] = rating['user_id'].astype(int)
     rating['fiction_id'] = rating['fiction_id'].astype(int)
@@ -21,7 +19,6 @@ def preprocess_rating(rating):
     rating['rating'] = rating['rating'].astype(int)
     return rating
 
-#Preprocessing rating data
 def preprocess_fiction(fiction):
     fiction['fiction_id'] = fiction['fiction_id'].astype(int)
     fiction['overview'] = fiction['overview'].astype(str)
@@ -31,7 +28,6 @@ def preprocess_fiction(fiction):
     fiction['chapter'] = fiction['chapter'].astype(str)
     return fiction
 
-#menghitung count_rating, mean_rating, like, click, dan popularitas berdasarkan fiction_id
 def calculate_rating(rating):
     fiction_recs = rating.groupby("fiction_id").rating.agg(['count','mean'])
     fiction_recs['click'] = rating.groupby("fiction_id").click.agg(['count'])
@@ -82,8 +78,7 @@ def similar_title(title, fiction):
     index = np.argmax(similarity)
     return fiction['title'].iloc[index]
 
-def predict(title, fiction, content_df, similarity_weight, top_n):
-    
+def predict(title, fiction, content_df, similarity_weight, top_n):    
     data = content_df.reset_index()
     index_movie = data[data['title'] == title].index
 
@@ -97,54 +92,32 @@ def predict(title, fiction, content_df, similarity_weight, top_n):
     content_df['final_score'] = content_df['score']*(1-similarity_weight) + content_df['similarity']*similarity_weight
     content_df_sorted = content_df.sort_values(by='final_score', ascending=False).head(top_n)
     content_df_sorted.set_index('title', inplace=True)
-    merged_df = content_df_sorted.merge(fiction, on='fiction_id', how='left')
-    
+    merged_df = content_df_sorted.merge(fiction, on='fiction_id', how='left')    
     return merged_df[['fiction_id']]
 
-data = sys.argv[1]
-
 def cbf_recommendation_with_prediction(title, rating_dir='./json/rating.json', fiction_dir='./json/fiction.json'):
-
-    #memuat data rating dan fiction_metadata
     fiction_metadata = pd.read_json(fiction_dir)
     rating = pd.read_json(rating_dir)
 
-    #membuat dataframe fiction
     fiction = fiction_metadata[['fiction_id', 'title', 'overview', 'language', 'tags', 'genres', 'chapter']]
     fiction['title_mod'] = fiction["title"].str.replace("[^a-zA-Z0-9 ]", "").str.lower().str.replace("\s+", " ", regex=True)
     
-    #preprocessing data rating dan fiction_metadata
     rating = preprocess_rating(rating)
     fiction = preprocess_fiction(fiction)
 
-    #membuat dataframe fiction_recs untuk menghitung rating count, rating mean, click, like, dan popularity
     fiction_recs = calculate_rating(rating)
-
-    #merge dataframe fiction dengan fiction_recs
     fiction = fiction.merge(fiction_recs, how='inner', on='fiction_id')
-
-    #menghitung weighted_mean dari algoritma hybrid
     fiction['weighted_mean'] = calculate_weighted_mean(fiction, fiction_recs)
-
-    #membuat dataframe rating_pred untuk mengurutkan konten paling populer
     rating_pred_sorted = preprocess_rating_pred(fiction,fiction_recs)
 
-    # Create a content_df
     content_df = fiction[['fiction_id', 'title', 'overview', 'language', 'tags', 'genres', 'chapter']]
-
-    #melakukan preprocess pada content_df
     content_df = preprocess_content(content_df)
-
-    #merge rating_pred dengan content_df
     content_df = rating_pred_sorted[:10000].merge(content_df, left_index=True, right_index=True, how='left')
-
-    #rekomendasi fancition yang paling mirip dan populer
     content_df = content_df.reset_index()
 
-    title = similar_title(title, fiction)
-    
+    title = similar_title(title, fiction)    
     recommendation = predict(title, fiction, content_df, 0.9, 10)
-
     return recommendation.to_json()
 
-print(cbf_recommendation_with_prediction(data))
+data = sys.argv[1]
+cbf_recommendation_with_prediction(data)
