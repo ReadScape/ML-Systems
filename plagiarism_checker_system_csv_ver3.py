@@ -70,16 +70,18 @@ def vecTfid(flat_text,text):
   return vecarr
 
 # To make all the line in file author and similar lines in other files into a dictionary
-def add_values(story_dict, key, values):
-    if key not in story_dict:
-        story_dict[key] = []
-
-    for value in values:
-        if value not in story_dict[key]:
-            story_dict[key].append(value)
+def add_values(story_dict, key, values, id):
+  if key not in story_dict:
+    story_dict[key] = {}
+  if id not in story_dict[key]:
+    story_dict[key][id] = []
+  for value in values:
+    if value not in story_dict[key][id]:
+      story_dict[key][id].append(value)
 
 # Using the flag system to count copy-pasted and high similarity line
-def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2):
+
+def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, title):
   # Defining all necessary flag variables
   plag_tf_token = 0
   di = len(tf1)
@@ -110,15 +112,15 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2):
     # For high similarity checking
     if any(vals >= 0.9999 for vals in tf_cos[i]):
       tryis = [index for index, vals in enumerate(tf_cos[i]) if vals >= 0.9999]
-      add_values(story_dict, text1[i],[text2[i] for i in tryis])
+      add_values(story_dict, text1[i],[text2[i] for i in tryis], f"file {title}")
       hs+=1
     elif any(0.7 < vals < 0.9999 for vals in tf_cos[i]):
       tryis = [index for index, vals in enumerate(tf_cos[i]) if 0.7 < vals < 0.9999]
-      add_values(story_dict, text1[i],[text2[i] for i in tryis])
+      add_values(story_dict, text1[i],[text2[i] for i in tryis], f"file {title}")
       tf = 2
     elif any(0.35 < vals <= 0.7 for vals in tf_cos[i]):
       tryis = [index for index, vals in enumerate(tf_cos[i]) if 0.35 < vals <= 0.7]
-      add_values(story_dict, text1[i],[text2[i] for i in tryis])
+      add_values(story_dict, text1[i],[text2[i] for i in tryis], f"file {title}")
       tf = 1
     else:
       tf = 0
@@ -126,11 +128,11 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2):
     # For high structure similarity checking
     if any(vals >= 0.9999 for vals in token_cos[i]):
       tryis = [index for index, vals in enumerate(token_cos[i]) if vals >= 0.9999]
-      add_values(story_dict, text1[i],[text2[i] for i in tryis])
+      add_values(story_dict, text1[i],[text2[i] for i in tryis], f"file {title}")
       cp+=1
     elif any(0.7 < vals < 0.9999 for vals in token_cos[i]):
       tryis = [index for index, vals in enumerate(token_cos[i]) if 0.7 < vals < 0.9999]
-      add_values(story_dict, text1[i],[text2[i] for i in tryis])
+      add_values(story_dict, text1[i],[text2[i] for i in tryis], f"file {title}")
       token = 1
     else:
       token = 0
@@ -141,6 +143,7 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2):
   return plag_tf_token, di, hs, cp
 
 # Main code of the system, calling all the neccesary functions
+
 def main_code(story_data,text_list):
   # Flattened the text to smooth out the tokenize and vectorize
   flat_text = [line for text in text_list for line in text]
@@ -156,13 +159,18 @@ def main_code(story_data,text_list):
   for j in range(len(token)):
     # Skip chapter text of same story
     if story_data.iloc[-1,1] != story_data.iloc[j,1]:
-      plag_ft, di, hs, cp = count_flag(token[-1], token[j], tfid[-1], tfid[j], story_dict, text_list[-1], text_list[j])
+      plag_ft, di, hs, cp = count_flag(token[-1], token[j], tfid[-1], tfid[j], story_dict, text_list[-1], text_list[j], story_data.iloc[j,1])
       plag_score = (plag_ft+(hs+cp)/2)/di
     if plag_score > fin_plag_score:
       fin_plag_score = plag_score
   final = pd.DataFrame({'Final Score': [fin_plag_score*100]})
-  df = pd.DataFrame(list(story_dict.items()), columns=['Key', 'Values'])
-  df_e = df.explode('Values')
+  data = []
+  for key, file_dict in story_dict.items():
+    for id, value in file_dict.items():
+      row = {'Key': key, 'File': id, 'Value': value}
+      data.append(row)
+  df = pd.DataFrame(data)
+  df_e = df.explode('Value')
   df_e.reset_index(drop=True, inplace=True)
   return df.to_json(), final.to_json(), df_e.to_json()
 
@@ -178,6 +186,8 @@ def request(story_url='https://docs.google.com/spreadsheets/d/e/2PACX-1vQxre--PX
   return story_data
 
 df, final, df_e = Plagiarism_Checker(request())
+
+print(df)
 
 #df_e yg masing2 similar line jadi beda row&index
 #df yg semua similar line jadi 1d di index yg sama
