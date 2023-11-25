@@ -14,7 +14,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import re
 import requests
 import pandas as pd
-import io
 #!pip install nltk
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -120,8 +119,6 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, title):
   for i in range(di):
     tf = 0
     token = 0
-    #print(tf_cos[i])
-    #print(token_cos[i])
     # For high similarity checking
     if any(vals >= 0.9999 for vals in tf_cos[i]):
       tryis = [index for index, vals in enumerate(tf_cos[i]) if vals >= 0.9999]
@@ -214,4 +211,3 @@ def request(story_url='https://readscape.live/pdftodatabase'):
   return story
 
 final, df_e = Plagiarism_Checker(request())
-
