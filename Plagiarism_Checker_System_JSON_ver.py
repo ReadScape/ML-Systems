@@ -249,17 +249,17 @@ def main_code(story_data, text_list):
     if len(story_dict) == 0:
         add_values(story_dict, '-', '-', ['-', '-'])
 
-    data = [{'Line': key, 'Fiction_id': fic_id, 'Chapter_id': chap_id, 'Similar Line': value}
+    data = [{'Original Line': key, 'Fiction_id': fic_id, 'Chapter_id': chap_id, 'Similar Line': value}
             for key, file_dict in story_dict.items()
             for fic_id, chap_dict in file_dict.items()
             for chap_id, value in chap_dict.items()]
-
+    
     df = pd.DataFrame(data)
     df_e = df.explode('Similar Line')
     df_e.reset_index(drop=True, inplace=True)
 
-    final = {'Final Plagiarism Score': [fin_plag_score * 100], 'Y/N': YN, 'Verdict': verdict,
-             'Fiction_id': [id['Fiction_id'] for id in data]}
+    final = {'Final Plagiarism Score': [fin_plag_score*100], 'Y/N': YN, 'Verdict': verdict, 
+             'Original Fiction_id': story_data.iloc[-1,1], 'Matched Fiction_id': [id['Fiction_id'] for id in data]}
 
     details = df_e.to_json()
     final = json.dumps(final)
