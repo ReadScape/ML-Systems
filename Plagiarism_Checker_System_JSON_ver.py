@@ -40,6 +40,7 @@ def request(story_url='https://readscape.live/pdftodatabase'):
     story = story.json()
     story = pd.DataFrame(story['data'])
     return story, story_url
+    
 def remove(text):
     """
     Cleaning the unnecessary symbols inside the text.
