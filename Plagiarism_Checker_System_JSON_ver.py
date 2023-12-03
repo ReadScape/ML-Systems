@@ -40,7 +40,7 @@ def request(story_url='https://readscape.live/pdftodatabase'):
     story = story.json()
     story = pd.DataFrame(story['data'])
     return story, story_url
-    
+
 def remove(text):
     """
     Cleaning the unnecessary symbols inside the text.
@@ -51,9 +51,9 @@ def remove(text):
     Returns:
         words (str): cleaned text.
     """
-    pattern = r'[“”‘’:;"?_\',.()\[\]]'
+    pattern = r'[\“\”\‘\’\"\']'
     sub_text = re.sub(pattern, '', text)
-    pattern = r'[\-\–]'
+    pattern = r'[\-\–\—\/?!_,.()\[\]:;]'
     sub_text = re.sub(pattern, ' ', sub_text)
     token_text = word_tokenize(sub_text)
     words = [word for word in token_text if word]
@@ -79,7 +79,7 @@ def text_list(story_data):
         lists.append(list_arr)
     return lists
 
-def tokenizing(flat_text, text):
+def tokenizing(flat_text,text):
     """
     Tokenizing the texts.
 
@@ -118,7 +118,7 @@ def vecTfid(flat_text, text):
         vecarr.append(transform)
     return vecarr
 
-def add_values(story_dict, key, values, id):
+def add_values(story_dict, line_key, values, ori_id, opp_id):
     """
     Creating the similar text lines dictionary.
 
@@ -131,15 +131,19 @@ def add_values(story_dict, key, values, id):
     Returns:
         story_dict (dictionary): the dictionary filled with new values.
     """
-    fic_id, chap_id = id
+    # Define the fiction and chapter id
+    ori_fic_id, ori_chap_id = ori_id
+    opp_fic_id, opp_chap_id = opp_id
 
-    story_dict.setdefault(key, {}).setdefault(fic_id, {}).setdefault(chap_id, [])
+    # Set the dictionary
+    story_dict.setdefault(ori_fic_id, {}).setdefault(ori_chap_id, {}).setdefault(line_key, {}).setdefault(opp_fic_id, {}).setdefault(opp_chap_id, [])
 
+    # Adding the lines into each dictionary keys
     for line in values:
-        if line not in story_dict[key][fic_id][chap_id]:
-            story_dict[key][fic_id][chap_id].append(line)
+        if line not in story_dict[ori_fic_id][ori_chap_id][line_key][opp_fic_id][opp_chap_id]:
+            story_dict[ori_fic_id][ori_chap_id][line_key][opp_fic_id][opp_chap_id].append(line)
 
-def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, id):
+def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, ori_id, opp_id):
     """
     Detecting lines with high similarity.
 
@@ -159,6 +163,7 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, id):
         hs (int): number of line with vectorized similarity >0.9999
         cp (int): number of line with tokenized similarity >0.9999
     """
+    # Defining all necessary flag variables
     plag_tf_token = 0
     di = len(tf1)
     token_cos = []
@@ -166,14 +171,15 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, id):
     hs = 0
 
     # Getting the similarity on Tokenized text and Vectorized text
-    tf_cos = cosine_similarity(tf1,tf2)
+    tf_cos = cosine_similarity(tf1, tf2)
     for i in range(len(token1)):
-        cos_line= []
+        cos_line = []
         for j in range(len(token2)):
-            cos = len(set(token1[i])&set(token2[j]))/len(list(set(token1[i]+token2[j])))
+            cos = len(set(token1[i]) & set(token2[j])) / len(list(set(token1[i] + token2[j])))
             cos_line.append(cos)
         token_cos.append(cos_line)
 
+    # Iterating through all the line
     for i in range(di):
         tf = 0
         token = 0
@@ -181,34 +187,34 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, id):
         # For high similarity checking
         if any(vals >= 0.9999 for vals in tf_cos[i]):
             tryis = [index for index, vals in enumerate(tf_cos[i]) if vals >= 0.9999]
-            add_values(story_dict, text1[i],[text2[i] for i in tryis], id)
-            hs+=1
+            add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
+            hs += 1
         elif any(0.35 < vals < 0.9999 for vals in tf_cos[i]):
             tryis = [index for index, vals in enumerate(tf_cos[i]) if 0.35 < vals < 0.9999]
-            add_values(story_dict, text1[i],[text2[i] for i in tryis], id)
+            add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
             tf = 1
         else:
             tf = 0
 
         # For high structure similarity checking
         if any(vals >= 0.9999 for vals in token_cos[i]):
-          tryis = [index for index, vals in enumerate(token_cos[i]) if vals >= 0.9999]
-          add_values(story_dict, text1[i],[text2[i] for i in tryis], id)
-          cp+=1
+            tryis = [index for index, vals in enumerate(token_cos[i]) if vals >= 0.9999]
+            add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
+            cp += 1
         elif any(0.7 < vals < 0.9999 for vals in token_cos[i]):
-          tryis = [index for index, vals in enumerate(token_cos[i]) if 0.7 < vals < 0.9999]
-          add_values(story_dict, text1[i],[text2[i] for i in tryis], id)
-          token = 1
+            tryis = [index for index, vals in enumerate(token_cos[i]) if 0.7 < vals < 0.9999]
+            add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
+            token = 1
         else:
-          token = 0
+            token = 0
 
         # For plagiarism checking score (other than copy-pasted or 99% similarity)
         if token + tf > 1:
-          plag_tf_token += 1
+            plag_tf_token += 1
 
     return plag_tf_token, di, hs, cp
 
-def main_code(story_data, text_list):
+def main_code(story_data,text_list):
     """
     Main code of the system, checking the newly uploaded story checked against other stories in database.
 
@@ -220,8 +226,10 @@ def main_code(story_data, text_list):
         final (json): final similarity score and whether the file is safe to be uploaded or not.
         details (json): lines with high similarity and the related works.
     """
+    # Flattened the text to smooth out the tokenize and vectorize
     flat_text = [line for text in text_list for line in text]
 
+    # Calling the tokenizer and vectorizer function
     tfid = vecTfid(flat_text, text_list)
     token = tokenizing(flat_text, text_list)
 
@@ -231,10 +239,12 @@ def main_code(story_data, text_list):
     YN = 0
     story_dict = {}
 
+    # Iterating each text to examine the similarity between text
     for j in range(len(token)):
-        if story_data.iloc[-1, 1] != story_data.iloc[j, 1]:
-            plag_ft, di, hs, cp = count_flag(token[-1], token[j], tfid[-1], tfid[j], story_dict, text_list[-1],
-                                             text_list[j], story_data.iloc[j, 1:3])
+        # Skip chapter text of same story
+        if story_data.iloc[1, 1] != story_data.iloc[j, 1]:
+            plag_ft, di, hs, cp = count_flag(token[1], token[j], tfid[1], tfid[j], story_dict, text_list[1],
+                                             text_list[j], story_data.iloc[1, 1:3], story_data.iloc[j, 1:3])
             plag_score = (plag_ft + (hs + cp) / 2) / di
         if plag_score > fin_plag_score:
             fin_plag_score = plag_score
@@ -247,26 +257,29 @@ def main_code(story_data, text_list):
         verdict = "Congratulations, your plagiarism score is within safe percentage! You may upload your work!"
 
     if len(story_dict) == 0:
-        add_values(story_dict, '-', '-', ['-', '-'])
+        add_values(story_dict, '-', '-', story_data.iloc[-1, 1:3], ['-', '-'])
 
-    data = [{'Original Line': key, 'Fiction_id': fic_id, 'Chapter_id': chap_id, 'Similar Line': value}
-            for key, file_dict in story_dict.items()
-            for fic_id, chap_dict in file_dict.items()
-            for chap_id, value in chap_dict.items()]
-    
+    data = [{'ori_fic_id': ori_fic_id, 'ori_chap_id': ori_chap_id, 'ori_line': key, 'opp_fic_id': opp_fic_id,
+             'opp_chap_id': opp_chap_id, 'sim_line': value}
+            for ori_fic_id, chap_id in story_dict.items()
+            for ori_chap_id, key_dict in chap_id.items()
+            for key, file_dict in key_dict.items()
+            for opp_fic_id, chap_dict in file_dict.items()
+            for opp_chap_id, value in chap_dict.items()]
+
     df = pd.DataFrame(data)
-    df_e = df.explode('Similar Line')
+    df_e = df.explode('sim_line')
     df_e.reset_index(drop=True, inplace=True)
 
-    final = {'Final Plagiarism Score': [fin_plag_score*100], 'Y/N': YN, 'Verdict': verdict, 
-             'Original Fiction_id': story_data.iloc[-1,1], 'Matched Fiction_id': [id['Fiction_id'] for id in data]}
+    final = {'final_plag_score': [fin_plag_score * 100], 'yes_or_no': YN, 'verdict': verdict,
+             'ori_fic_id': story_data.iloc[-1, 1], 'opp_fic_id': [id['opp_fic_id'] for id in data]}
 
     details = df_e.to_json()
     final = json.dumps(final)
 
     return final, details
 
-def Plagiarism_Checker(data=request()):
+def Plagiarism_Checker(data):
     """
     Function to call the main code and post result.
 
@@ -282,4 +295,4 @@ def Plagiarism_Checker(data=request()):
         print(response.json)
     return show_arr
 
-Plagiarism_Checker()
+Plagiarism_Checker(request())
