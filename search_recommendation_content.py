@@ -1,5 +1,5 @@
 """
-recommendation_content.py: Recommends fiction based on content similarity with the input title and sorted by popularity.
+search_recommendation_content.py: Recommends fiction based on content similarity with the input title and sorted by popularity.
 
 Args:
     title (str): The title of the fanfiction to be recommended.
