@@ -7,10 +7,10 @@ There are 3 parts of Machine Learning:
 ## Content Based Recommendation System  
 The Content Base Recommendation System is a recommendation system used for content search features and post pages. It gives recommendations based on feature content. Recommended content is based on the similarity between the content that is searched for or liked and the content available. The content-based recommendation system used in this application is divided into three categories, including:
 ### 1. Recommendation content similarity based  
-Recommendation content similarity-based (recommendation_content.py) is a recommendation system that recommends fanfiction based on content similarity with entry titles and sorts based on popularity. This recommendation system is used for the content search feature.  
+Recommendation content similarity-based (search_recommendation_content.py) is a recommendation system that recommends fanfiction based on content similarity with entry titles and sorts based on popularity. This recommendation system is used for the content search feature.  
 Args:  
 * title (str): The title of the fanfiction to be recommended.
-* rating_dir (str): The directory of the rating data.
+* rating_dir (str): The directory of the calculated rating data.
 * fiction_dir (str): The directory of the fiction data.
 
 Process:  
