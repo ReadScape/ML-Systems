@@ -29,7 +29,7 @@ def main(is_popular_content, is_recommendation_system, url_rating,
 
     # For 'FYP Fanfiction' Feature
     if is_recommendation_system:
-        if rating_data[rating_data['user_id'] == user_id].shape[0] < 5: # Cold start
+        if rating_data[rating_data['user_id'] == user_id]['click'].count() < 3: # Cold start
             # Use our custom RecSys
             request_fanfic_recommendation(url_rating, url_fiction, genre)
         else: # Probably ready to use the CF model
@@ -41,10 +41,10 @@ def main(is_popular_content, is_recommendation_system, url_rating,
 if __name__ == "__main__":
     is_popular_content = False  # Set to True for popular content
     is_recommendation_system = True  # Set to True for recommendation system
-    url_rating = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQwAbiu8ldvpGWuIZtrx_QFzFZ_SvXAxLdbhmNg5lyxiflfNmzm94Ie3mJioEumkslTXOP_d-WuwNfX/pub?output=csv'
-    url_fiction = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2u8napMK0lNviIL48m4jUiqtLezC2KlI61HWr5ekunHYVYYbNJKfP_4PptUgr7ZYwz_z1ozC9mfzh/pub?output=csv'
+    url_rating = "https://readscape.live/fiction_ratings"
+    url_fiction = 'https://readscape.live/fiction'
     model_path = 'CF_DL_model_V0.1.h5'
-    user_id = 5
+    user_id = '7bdba0b4-8aeb-11ee-8ba1-42010ab80003'
     # set the desired time range: 'weekly', 'monthly', 'yearly', or None (all time)
     time_range = None
     # set the desired genre: 
