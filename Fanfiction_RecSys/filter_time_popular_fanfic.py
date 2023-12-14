@@ -21,5 +21,5 @@ def filter_by_time(df, time_range):
     else:
         return df  # all time most popular fanfiction
 
-    filtered_df = df[df['release_date'] >= start_date] # filter by start date
+    filtered_df = df[df['created_at'] >= start_date] # filter by start date
     return filtered_df
