@@ -12,7 +12,7 @@ def calculate_engagement(fanfic_data):
     """
     # Get total clicks, likes, and ratings (> 3) for fiction_id
     total_clicks = fanfic_data.groupby('fiction_id')['click'].sum().nlargest(5)
-    total_likes = fanfic_data.groupby('fiction_id')['like'].sum().nlargest(10)
+    total_likes = fanfic_data.groupby('fiction_id')['love'].sum().nlargest(10)
     count_rating = fanfic_data[fanfic_data['rating'] > 3].groupby('fiction_id').size().sort_values(
         ascending=False)
 
