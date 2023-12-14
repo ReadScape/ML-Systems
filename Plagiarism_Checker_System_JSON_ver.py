@@ -263,7 +263,7 @@ def main_code(story_data,text_list):
   df_e.reset_index(drop=True, inplace=True)
 
   final = {'final_plag_score': round(fin_plag_score * 100, 2), 'yes_or_no': YN, 'verdict': verdict,
-           'ori_fic_id': story_data.iloc[-1,1], 'opp_fic_id': [id['opp_fic_id'] for id in data]}
+           'ori_fic_id': story_data.iloc[cid,1], 'opp_fic_id': [id['opp_fic_id'] for id in data]}
 
   details = df_e.to_json()
   final = json.dumps(final)
