@@ -191,7 +191,6 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, ori_id, opp_i
             hs += 1
         elif any(0.35 < vals < 0.9999 for vals in tf_cos[i]):
             tryis = [index for index, vals in enumerate(tf_cos[i]) if 0.35 < vals < 0.9999]
-            add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
             tf = 1
         else:
             tf = 0
@@ -203,8 +202,9 @@ def count_flag(token1, token2, tf1, tf2, story_dict, text1, text2, ori_id, opp_i
             cp += 1
         elif any(0.7 < vals < 0.9999 for vals in token_cos[i]):
             tryis = [index for index, vals in enumerate(token_cos[i]) if 0.7 < vals < 0.9999]
-            add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
-            token = 1
+            token = 1            
+            if tf == 1:
+                add_values(story_dict, text1[i], [text2[i] for i in tryis], ori_id, opp_id)
         else:
             token = 0
 
