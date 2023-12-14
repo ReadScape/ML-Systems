@@ -22,7 +22,7 @@ def request_popular_content(url_rating, url_fiction, time_range=None):
     rating, fiction = preprocess_data(rating, fiction)
 
     # Merge data
-    fanfic_data = fiction.merge(rating, how='inner', on='fiction_id')
+    fanfic_data = fiction.merge(rating, how='outer', on='fiction_id')
 
     # Filter by time
     if time_range:
