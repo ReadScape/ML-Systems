@@ -195,16 +195,22 @@ Plagiarism checker system has several features:
 
 This system uses several library, such as: tensorflow, os, sklearn, nltk, re, numpy, PyPDF2 and docx.
 
-And also uses available functions, such as: TfidfVectorizer, cosine_similarity, word_tokenize, sent_tokenize, Tokenizer and pad_sequences.
+And also uses available functions, such as: TfidfVectorizer, cosine_similarity, word_tokenize, sent_tokenize and Tokenizer.
 
-Current progress:
-* System can show how much line are copy-pasted or has high similarity (threshold = 0.99, 0.7, 0.3)
-* System has been designed to show which text are plagiarized and which text are save to be uploaded by Author
+Args:
+* fiction_id (str): the story id of all work in database.
+* chapter_id (str): the chapter id of all work in database.
+* story (str): the content of the story of all work in database.
 
-Next progress:
-* Similarity threshold may be changed depending on the format and type of text
-* Try implementing a Neural Network into the system
+Process:
+* request data from story database url
+* load story content within database into array
+* preprocess the story content by removing unnecessary symbols
+* check plagiarism by looping file A (file being checked) against file B (all other files in database)
+* checking similarity by Tokenizing and Vectorizing both files story content
+* similarity between files are recorded by saving necessary data into dictionary
+* obtaining the final plagiarism score by saving highest plagiarism score within the loop
+* final verdict of the work are based on the file being less or more than 30% plagiarism score
 
-![image](https://github.com/ReadScape/ML-Thingy/assets/141800409/a2a3b058-3c77-4aaf-a247-2ece1dbebd99)
-
-[Latest Plagiarism Checker System link](https://colab.research.google.com/drive/1ppuMaEjXKjWd24T_JPt4IWbjVE5O_Uum?usp=sharing) 
+Returns:
+* json: details and final json
