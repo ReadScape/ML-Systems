@@ -193,10 +193,6 @@ Plagiarism checker system has several features:
 * System will check any sentences with high similarity
 * System will decide if the work are save to be uploaded
 
-This system uses several library, such as: tensorflow, os, sklearn, nltk, re, numpy, PyPDF2 and docx.
-
-And also uses available functions, such as: TfidfVectorizer, cosine_similarity, word_tokenize, sent_tokenize and Tokenizer.
-
 Args:
 * fiction_id (str): the story id of all work in database.
 * chapter_id (str): the chapter id of all work in database.
