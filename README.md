@@ -15,12 +15,11 @@ Args:
 
 Process:  
 * request rating data and fiction data from url
-* read rating data and fiction data
-* make fiction dataframe
+* load data into rating data frame and fiction data frame
+* make column "title_mod" on fiction data frame for similarity title
 * preprocess rating data and fiction data
 * make fiction_recs dataframe by calculating rating, click, like, and popularity
-* merge fiction and fiction_recs dataframe
-* calculate weighted mean
+* merging fiction and rating data frame
 * preprocess rating prediction by scaling and calculating the score
 * preprocess content dataframe by applying text preprocessing and merging columns
 * find the most similar title based on content similarity
@@ -52,15 +51,15 @@ Recommendation post popularity and similarity-based (popular_post_rec.py) is a r
 Args:  
 * user_id (int): The user ID.
 * post_dir (str): The directory path of the post data file.
-* interaction_dir (str): The directory path of the interaction data file.
+* calculate_dir (str): The directory path of the calculated interaction data file.
 * tags_dir (str): The directory path of the tags data file.
 
 Process:  
-* request post data, interaction data, and tags data from url
+* request post data, calculate data, and tags data from url
 * read post data, interaction data, and tags data
-* preprocess post data, interaction data, and tags data
+* preprocess post data and tags data
 * preprocess user tags by splitting the tags into lists
-* calculate popularity of each post based on interactions
+* merging post and calculate data frame
 * sort the post data by popularity
 * filter the post data by tags
 * return the filtered post recommendations for the user
