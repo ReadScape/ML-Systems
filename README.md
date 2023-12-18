@@ -210,3 +210,27 @@ Process:
 
 Returns:
 * json: details and final json
+
+Spec:
+* details:
+  
+  1. `ori_fic_id`: fiction ID of file A *
+  2. `ori_chap_id`: chapter ID of file A *
+  3. `ori_line`: all lines of file A that has been flagged down as plagiarism **
+  4. `opp_fic_id`: fiction IDs of all file B flagged down as plagiarized ***
+  5. `opp_chapter_id`: chapter IDs of all file B flagged down as plagiarized ***
+  6. `sim_line`: all lines of file B flagged down as plagiarized **
+
+* final:
+  
+  1. `final_plag_score`: final and highest plagiarism score of file A *
+  2. `yes_or_no`: variable to differentiate between safe and unsafe to be uploaded *
+  3. `verdict`: lines to be shown (change according to the status of plagiarism) *
+  4. `ori_fic_id`: fiction ID of file A *
+  5. `opp_fic_id`: fiction IDs of all file B flagged down as plagiarized ***
+
+*contain only 1 fixed value
+
+**lines are matched with each other
+
+***contain multiple value
