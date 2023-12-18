@@ -191,7 +191,7 @@ Plagiarism checker system has several features:
 
 * System will check any copy-pasted element inside the text
 * System will check any sentences with high similarity
-* System will decide if the work is save to be uploaded
+* System will decide if the work is safe to be uploaded
 
 Args:
 * fiction_id (str): the story id of all work in database.
