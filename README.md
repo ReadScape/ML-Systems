@@ -1,4 +1,4 @@
-# < For the Progress of Machine Learning Part of READSCAPE >
+# < Take a Peek at the Machine Learning Part of READSCAPE >
 There are 3 parts of Machine Learning:
 1. Content Based Recommendation System
 2. Colaborative Based Recommendation System
