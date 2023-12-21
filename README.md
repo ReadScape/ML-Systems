@@ -1,4 +1,4 @@
-# < For the Progress of Machine Learning Part of READSCAPE >
+# < Take a Peek at the Machine Learning Part of READSCAPE >
 There are 3 parts of Machine Learning:
 1. Content Based Recommendation System
 2. Colaborative Based Recommendation System
@@ -15,12 +15,11 @@ Args:
 
 Process:  
 * request rating data and fiction data from url
-* read rating data and fiction data
-* make fiction dataframe
+* load data into rating data frame and fiction data frame
+* make column "title_mod" on fiction data frame for similarity title
 * preprocess rating data and fiction data
 * make fiction_recs dataframe by calculating rating, click, like, and popularity
-* merge fiction and fiction_recs dataframe
-* calculate weighted mean
+* merging fiction and rating data frame
 * preprocess rating prediction by scaling and calculating the score
 * preprocess content dataframe by applying text preprocessing and merging columns
 * find the most similar title based on content similarity
@@ -52,15 +51,15 @@ Recommendation post popularity and similarity-based (popular_post_rec.py) is a r
 Args:  
 * user_id (int): The user ID.
 * post_dir (str): The directory path of the post data file.
-* interaction_dir (str): The directory path of the interaction data file.
+* calculate_dir (str): The directory path of the calculated interaction data file.
 * tags_dir (str): The directory path of the tags data file.
 
 Process:  
-* request post data, interaction data, and tags data from url
+* request post data, calculate data, and tags data from url
 * read post data, interaction data, and tags data
-* preprocess post data, interaction data, and tags data
+* preprocess post data and tags data
 * preprocess user tags by splitting the tags into lists
-* calculate popularity of each post based on interactions
+* merging post and calculate data frame
 * sort the post data by popularity
 * filter the post data by tags
 * return the filtered post recommendations for the user
@@ -192,20 +191,46 @@ Plagiarism checker system has several features:
 
 * System will check any copy-pasted element inside the text
 * System will check any sentences with high similarity
-* System will decide if the work are save to be uploaded
+* System will decide if the work is safe to be uploaded
 
-This system uses several library, such as: tensorflow, os, sklearn, nltk, re, numpy, PyPDF2 and docx.
+Args:
+* fiction_id (str): the story id of all work in database.
+* chapter_id (str): the chapter id of all work in database.
+* story (str): the content of the story of all work in database.
 
-And also uses available functions, such as: TfidfVectorizer, cosine_similarity, word_tokenize, sent_tokenize, Tokenizer and pad_sequences.
+Process:
+* request data from story database url
+* load story content within database into array
+* preprocess the story content by removing unnecessary symbols
+* check plagiarism by looping file A (file being checked) against file B (all other files in database)
+* checking similarity by Tokenizing and Vectorizing both files story content
+* similarity between files are recorded by saving necessary data into dictionary
+* obtaining the final plagiarism score by saving highest plagiarism score within the loop
+* final verdict of the work are based on the file being less or more than 30% plagiarism score
 
-Current progress:
-* System can show how much line are copy-pasted or has high similarity (threshold = 0.99, 0.7, 0.3)
-* System has been designed to show which text are plagiarized and which text are save to be uploaded by Author
+Returns:
+* json: details and final json
 
-Next progress:
-* Similarity threshold may be changed depending on the format and type of text
-* Try implementing a Neural Network into the system
+Spec:
+* details:
+  
+  1. `ori_fic_id`: fiction ID of file A *
+  2. `ori_chap_id`: chapter ID of file A *
+  3. `ori_line`: all lines of file A that has been flagged down as plagiarism **
+  4. `opp_fic_id`: fiction IDs of all file B flagged down as plagiarized ***
+  5. `opp_chapter_id`: chapter IDs of all file B flagged down as plagiarized ***
+  6. `sim_line`: all lines of file B flagged down as plagiarized **
 
-![image](https://github.com/ReadScape/ML-Thingy/assets/141800409/a2a3b058-3c77-4aaf-a247-2ece1dbebd99)
+* final:
+  
+  1. `final_plag_score`: final and highest plagiarism score of file A *
+  2. `yes_or_no`: variable to differentiate between safe and unsafe to be uploaded *
+  3. `verdict`: lines to be shown (change according to the status of plagiarism) *
+  4. `ori_fic_id`: fiction ID of file A *
+  5. `opp_fic_id`: fiction IDs of all file B flagged down as plagiarized ***
 
-[Latest Plagiarism Checker System link](https://colab.research.google.com/drive/1ppuMaEjXKjWd24T_JPt4IWbjVE5O_Uum?usp=sharing) 
+*contain only 1 fixed value
+
+**lines are matched with each other
+
+***contain multiple value
